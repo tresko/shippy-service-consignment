@@ -1,6 +1,8 @@
 build:
-	protoc -I. --go_out=plugins=micro:. \
-	  proto/consignment/consignment.proto
+	protoc --proto_path=./proto/consignment \
+	  --micro_out=proto/consignment \
+	  --go_out=plugins=micro:proto/consignment \
+	  consignment.proto
 	docker build -t shippy-service-consignment .
 
 run:

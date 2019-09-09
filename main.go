@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
-	// Import the generated protobuf code
-	"context"
-
-	pb "github.com/EwanValentine/shippy/consignment-service/proto/consignment"
 	"github.com/micro/go-micro"
+
+	// Import the generated protobuf code
+	pb "github.com/tresko/shippy-service-consignment/proto/consignment"
 )
 
 type repository interface {
@@ -35,14 +35,14 @@ func (repo *Repository) GetAll() []*pb.Consignment {
 // we defined in our protobuf definition. You can check the interface
 // in the generated code itself for the exact method signatures etc
 // to give you a better idea.
-type service struct {
+type ShippingService struct {
 	repo repository
 }
 
 // CreateConsignment - we created just one method on our service,
 // which is a create method, which takes a context and a request as an
 // argument, these are handled by the gRPC server.
-func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
+func (s *ShippingService) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
 
 	// Save our consignment
 	consignment, err := s.repo.Create(req)
@@ -57,7 +57,7 @@ func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, re
 	return nil
 }
 
-func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest, res *pb.Response) error {
+func (s *ShippingService) GetConsignments(ctx context.Context, req *pb.GetRequest, res *pb.Response) error {
 	consignments := s.repo.GetAll()
 	res.Consignments = consignments
 	return nil
@@ -77,8 +77,9 @@ func main() {
 	// Init will parse the command line flags.
 	srv.Init()
 
+
 	// Register handler
-	pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
+	pb.RegisterShippingServiceHandler(srv.Server(), &ShippingService{repo})
 
 	// Run the server
 	if err := srv.Run(); err != nil {
